@@ -1,0 +1,65 @@
+<svg viewBox="0 0 960 260" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang TC','Microsoft JhengHei','Noto Sans CJK TC','Noto Sans TC',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a5680"/>
+    </marker>
+  </defs>
+  <rect width="960" height="260" fill="#0f1117"/>
+
+  <!-- connecting line -->
+  <line x1="140" y1="120" x2="820" y2="120" stroke="#2a3050" stroke-width="3" stroke-dasharray="2 7"/>
+
+  <!-- Step 1 -->
+  <g>
+    <circle cx="140" cy="60" r="22" fill="#181c27" stroke="#4f8ef7" stroke-width="2"/>
+    <text x="140" y="67" text-anchor="middle" fill="#4f8ef7" font-size="20" font-weight="700">1</text>
+    <rect x="60" y="96" width="160" height="140" rx="14" fill="#181c27" stroke="#2a3050" stroke-width="1.5"/>
+    <!-- folder icon -->
+    <path d="M100 140 h24 l8 10 h48 v34 h-80 z" fill="none" stroke="#4f8ef7" stroke-width="3" stroke-linejoin="round"/>
+    <text x="140" y="216" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">建立 Google</text>
+    <text x="140" y="234" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Cloud 專案</text>
+  </g>
+
+  <!-- Step 2 -->
+  <g>
+    <circle cx="366" cy="60" r="22" fill="#181c27" stroke="#22c55e" stroke-width="2"/>
+    <text x="366" y="67" text-anchor="middle" fill="#22c55e" font-size="20" font-weight="700">2</text>
+    <rect x="286" y="96" width="160" height="140" rx="14" fill="#181c27" stroke="#2a3050" stroke-width="1.5"/>
+    <!-- api toggle icon -->
+    <rect x="326" y="150" width="80" height="34" rx="17" fill="none" stroke="#22c55e" stroke-width="3"/>
+    <circle cx="386" cy="167" r="11" fill="#22c55e"/>
+    <text x="366" y="216" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">啟用 Google</text>
+    <text x="366" y="234" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Sheets API</text>
+  </g>
+
+  <!-- Step 3 -->
+  <g>
+    <circle cx="592" cy="60" r="22" fill="#181c27" stroke="#eab308" stroke-width="2"/>
+    <text x="592" y="67" text-anchor="middle" fill="#eab308" font-size="20" font-weight="700">3</text>
+    <rect x="512" y="96" width="160" height="140" rx="14" fill="#181c27" stroke="#2a3050" stroke-width="1.5"/>
+    <!-- key icon -->
+    <circle cx="572" cy="162" r="14" fill="none" stroke="#eab308" stroke-width="3"/>
+    <line x1="583" y1="173" x2="616" y2="206" stroke="#eab308" stroke-width="3" stroke-linecap="round"/>
+    <line x1="600" y1="190" x2="608" y2="198" stroke="#eab308" stroke-width="3" stroke-linecap="round"/>
+    <line x1="609" y1="199" x2="617" y2="207" stroke="#eab308" stroke-width="3" stroke-linecap="round"/>
+    <text x="592" y="216" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">建立 API</text>
+    <text x="592" y="234" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">金鑰</text>
+  </g>
+
+  <!-- Step 4 -->
+  <g>
+    <circle cx="818" cy="60" r="22" fill="#181c27" stroke="#f97316" stroke-width="2"/>
+    <text x="818" y="67" text-anchor="middle" fill="#f97316" font-size="20" font-weight="700">4</text>
+    <rect x="738" y="96" width="160" height="140" rx="14" fill="#181c27" stroke="#2a3050" stroke-width="1.5"/>
+    <!-- shield icon -->
+    <path d="M818 142 l26 10 v22 c0 20 -13 32 -26 38 c-13 -6 -26 -18 -26 -38 v-22 z" fill="none" stroke="#f97316" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M807 174 l8 8 l16 -18" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="818" y="216" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">限制金鑰</text>
+    <text x="818" y="234" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">使用範圍</text>
+  </g>
+
+  <!-- arrows between circles -->
+  <line x1="164" y1="60" x2="342" y2="60" stroke="#4a5680" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="60" x2="568" y2="60" stroke="#4a5680" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="616" y1="60" x2="794" y2="60" stroke="#4a5680" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>

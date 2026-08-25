@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夏令營排課系統</title>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="alternate icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="alternate icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Header ── -->
+  <header>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="theme-btn">
+        <button class="btn btn-g btn-sm" onclick="toggleThemeMenu(event)" title="切換主題">🎨</button>
+        <div id="theme-menu">
+          <div class="tm-opt on" id="topt-dark"    onclick="setTheme('dark')">   <span class="tm-dot" style="background:#4f8ef7"></span>暗黑（預設）</div>
+          <div class="tm-opt"    id="topt-morning"  onclick="setTheme('morning')"> <span class="tm-dot" style="background:#B85C38"></span>清晨米白</div>
+          <div class="tm-opt"    id="topt-lavender" onclick="setTheme('lavender')"><span class="tm-dot" style="background:#7F77DD"></span>薰衣草</div>
+          <div class="tm-opt"    id="topt-summer"   onclick="setTheme('summer')">  <span class="tm-dot" style="background:#E07800"></span>夏日陽光</div>
+        </div>
+      </div>
+      <div class="logo">夏令營<span>排課系統</span></div>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="step1" onclick="goStep(1)"><div class="step-num">1</div>匯入資料</div>
+      <div class="step"        id="step2" onclick="goStep(2)"><div class="step-num">2</div>老師設定</div>
+      <div class="step"        id="step3" onclick="goStep(3)"><div class="step-num">3</div>排班結果</div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-g btn-sm" id="btn-stats" style="display:none" onclick="openStats()">📊 老師統計</button>
+      <button class="btn btn-g btn-sm" id="btn-exp"   style="display:none" onclick="runExport()">⬇ 匯出 Excel</button>
+      <button class="btn btn-g btn-sm" onclick="openSettings()">⚙️ 設定</button>
+      <button class="btn btn-g btn-sm" onclick="openHelp()">❓ 使用說明</button>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════
+       Page 1 — 匯入資料
+       ════════════════════════════════════ -->
+  <div class="page active" id="page-import">
+    <div class="icard">
+      <h2>匯入資料</h2>
+      <p class="sub">選擇操作模式：全新排班，或繼續調整先前匯出的排班結果。</p>
+
+      <div class="itabs">
+        <div class="itab on" id="tab-new"    onclick="switchTab('new')"   ><span class="ti">📋</span> 全新排班</div>
+        <div class="itab"    id="tab-resume" onclick="switchTab('resume')"><span class="ti">📂</span> 繼續調整</div>
+      </div>
+
+      <!-- 全新排班：直接從 Google Sheet 抓資料，不用上傳檔案 -->
+      <div id="pane-new">
+        <div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;color:var(--text2)">
+            <span>👥 師資調查表</span><span id="gs-staff-label" style="font-family:'JetBrains Mono',monospace;font-size:12px">尚未設定</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--text2)">
+            <span>📅 需求表</span><span id="gs-schedule-label" style="font-family:'JetBrains Mono',monospace;font-size:12px">尚未設定</span>
+          </div>
+        </div>
+        <div id="gs-not-ready-hint" style="font-size:12px;color:var(--orange,#E07800);margin-bottom:10px">
+          ⚠ 尚未設定 Google Sheet，請先點下方「⚙️ 修改設定」填入 API Key 與兩份表的網址。
+        </div>
+        <button class="btn btn-p" id="btn-parse" style="width:100%;justify-content:center" disabled onclick="runParseFromSheets()">🔄 從 Google Sheet 抓取資料並繼續 →</button>
+        <div style="text-align:center;margin-top:10px">
+          <a href="javascript:void(0)" onclick="openSettings()" style="font-size:12px;color:var(--text2);text-decoration:underline">⚙️ 修改設定</a>
+        </div>
+      </div>
+
+      <!-- 繼續調整：兩種資料來源可選 -->
+      <div id="pane-resume" style="display:none">
+        <div class="itabs" style="margin-bottom:14px">
+          <div class="itab on" id="resume-src-sheet" onclick="switchResumeSource('sheet')"><span class="ti">🔄</span> 從 Google Sheet 抓取</div>
+          <div class="itab" id="resume-src-file" onclick="switchResumeSource('file')"><span class="ti">📂</span> 上傳排課結果.xlsx</div>
+        </div>
+
+        <!-- 子選項 A：需求表直接讀 Google Sheet 目前內容（含手動填過的名字） -->
+        <div id="resume-sheet-pane">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+            師資表 + 需求表都即時從 Google Sheet 抓取。如果需求表上已經有人手動填了講師/助教名字，
+            會直接當作起始的已排課狀態，可以繼續調整。
+          </div>
+          <button class="btn btn-p" id="btn-resume-sheet" style="width:100%;justify-content:center" disabled onclick="runResumeFromSheet()">🔄 從 Google Sheet 抓取並繼續 →</button>
+        </div>
+
+        <!-- 子選項 B：師資表一樣抓 Google Sheet，排課結果從上傳的 xlsx 還原 -->
+        <div id="resume-file-pane" style="display:none">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+            師資資料一樣即時從 Google Sheet 抓取，這裡上傳<strong>「排課結果.xlsx」</strong>（上次匯出、你自己保存下來的那份）。
+          </div>
+          <div class="uzone" id="zone-result"
+            ondragover="dg(event,'result',1)" ondragleave="dg(event,'result',0)" ondrop="dp(event,'result')">
+            <input type="file" accept=".xlsx" onchange="fs(event,'result')">
+            <div class="icon">📊</div>
+            <div class="lbl"><strong>排課結果</strong>.xlsx（系統匯出的那份）</div>
+            <div class="fn" id="fn-result"></div>
+          </div>
+          <div class="idiv"><span>上傳完成後</span></div>
+          <button class="btn btn-p" id="btn-resume" style="width:100%;justify-content:center" disabled onclick="runResumeFromFile()">載入並繼續調整 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       Page 2 — 老師設定
+       ════════════════════════════════════ -->
+  <div class="page" id="page-settings">
+    <div class="ptb">
+      <div>
+        <div class="ptitle">老師設定</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">新進人員可設定「助教保護週數」，前 N 週只排助教，之後才排講師</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g btn-sm" onclick="resetS()">重設</button>
+        <button class="btn btn-p" id="btn-p2-next" onclick="p2Next()">執行排班 →</button>
+      </div>
+    </div>
+
+    <!-- 搜尋列 -->
+    <div class="p2-search">
+      <input id="p2-search-input" type="text" placeholder="🔍 搜尋老師姓名..." oninput="onP2Search(this.value)">
+      <span class="p2-count" id="p2-count"></span>
+    </div>
+
+    <div class="ss">
+      <table class="st">
+        <thead><tr id="s-thead"></tr></thead>
+        <tbody id="s-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       Page 3 — 排班結果
+       ════════════════════════════════════ -->
+  <div class="page" id="page-editor">
+    <div class="em">
+      <div class="etb">
+        <div class="etbl">
+          <div class="ptitle">排班結果</div>
+          <div id="pills" style="display:flex;gap:6px"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-g btn-sm" id="btn-panel"  onclick="togglePanel()">📋 課程資訊</button>
+          <button class="btn btn-g btn-sm"                 onclick="goStep(2)">← 回老師設定</button>
+          <button class="btn btn-g btn-sm"                 onclick="rerunFill()">補排缺額</button>
+          <button class="btn btn-p btn-sm"                 onclick="rerunAll()">全部重新排班</button>
+        </div>
+      </div>
+      <div class="sscroll">
+        <table class="sct" id="sct">
+          <thead id="sct-head"></thead>
+          <tbody id="sct-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 右側面板 -->
+    <div class="ep" id="ep" style="display:none">
+      <div class="ph" style="display:flex;align-items:center;justify-content:space-between">
+        <span>課程資訊 &amp; 候選人</span>
+        <button class="btn btn-xs btn-g" onclick="closePanel()" style="padding:2px 8px;font-size:11px">✕ 關閉</button>
+      </div>
+      <div class="pe" id="p-empty">點選格子查看詳情</div>
+      <div class="pb" id="p-body" style="display:none"></div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- ════════════════════════════════════
+     全域 UI 元件
+     ════════════════════════════════════ -->
+<div id="toast"></div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="lt" id="lt">處理中...</div>
+</div>
+
+<!-- 強制指派確認 -->
+<div id="force-modal">
+  <div class="fmc">
+    <h3>⚠️ 強制指派確認</h3>
+    <p id="force-msg"></p>
+    <div class="fmbts">
+      <button class="btn btn-g"  onclick="forceCancel()">取消</button>
+      <button class="btn btn-p"  onclick="forceConfirm()" style="background:var(--orange)">確認強制指派</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⚙️ 設定：Google API Key + 師資表/需求表網址與分頁名稱 -->
+<style>
+  #settings-modal { display:none; position:fixed; inset:0; background:var(--overlay); align-items:center; justify-content:center; z-index:9999; }
+  #settings-modal.open { display:flex; }
+  #settings-modal .cfg-field { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--text2); margin-bottom:12px; }
+  #settings-modal .cfg-field input { padding:7px 10px; font-size:13px; border:2px solid var(--border2); border-radius:var(--r); background:var(--bg3); color:inherit; }
+  #settings-modal .cfg-field input:focus { border-color:var(--accent); outline:none; }
+</style>
+<div id="settings-modal">
+  <div class="cmc" style="max-width:440px;width:90%">
+    <h3>⚙️ Google Sheet 設定</h3>
+    <p style="font-size:12px;color:var(--text2);margin-top:4px">
+      兩份 Google Sheet 都要設成「知道連結的使用者皆可檢視」，API Key 建議在
+      Google Cloud Console 限制成只能用在 Sheets API。設定會存在這個瀏覽器裡，換一台電腦要重填。
+    </p>
+    <div style="margin-top:14px">
+      <label class="cfg-field">Google API Key
+        <input id="cfg-api-key" type="text" placeholder="AIza...">
+      </label>
+      <label class="cfg-field">師資調查表：Google Sheet 網址或 ID
+        <input id="cfg-staff-id" type="text" placeholder="https://docs.google.com/spreadsheets/d/...">
+      </label>
+      <label class="cfg-field">師資調查表：分頁名稱
+        <input id="cfg-staff-sheet" type="text" placeholder="2026夏令營">
+      </label>
+      <label class="cfg-field">需求表：Google Sheet 網址或 ID
+        <input id="cfg-schedule-id" type="text" placeholder="https://docs.google.com/spreadsheets/d/...">
+      </label>
+      <label class="cfg-field">需求表：分頁名稱
+        <input id="cfg-schedule-sheet" type="text" placeholder="2026 夏令營">
+      </label>
+    </div>
+    <div class="cmbts">
+      <button class="btn btn-g" onclick="closeSettings()">取消</button>
+      <button class="btn btn-p" onclick="saveSettings()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 自訂 Confirm（取代 window.confirm）-->
+<div id="confirm-modal">
+  <div class="cmc">
+    <h3 id="confirm-title"></h3>
+    <p  id="confirm-msg"></p>
+    <div class="cmbts">
+      <button class="btn btn-g" onclick="confirmCancel()">取消</button>
+      <button class="btn btn-p" id="confirm-ok" onclick="confirmOk()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- 使用說明 -->
+<div id="help-modal">
+  <div class="help-box">
+    <div class="help-hd">
+      <h3>❓ 使用說明</h3>
+      <button class="btn btn-xs btn-g" onclick="closeHelp()">✕ 關閉</button>
+    </div>
+    <div class="help-nav" id="help-nav"></div>
+    <div class="help-body" id="help-body"></div>
+  </div>
+</div>
+
+<!-- 老師統計 -->
+<div id="stats-modal">
+  <div class="stats-box">
+    <div class="stats-hd">
+      <h3>📊 老師排課統計</h3>
+      <button class="btn btn-xs btn-g" onclick="closeStats()">✕ 關閉</button>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     JS（依序載入，共用 window 空間）
+     ════════════════════════════════════ -->
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/theme.js"></script>
+
+<!-- ExcelJS：讀寫 .xlsx 用（純前端版取代原本的 Flask + openpyxl 後端） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+
+<!-- 排課邏輯（對應 schedule_generator.py），一定要排在 page1/2/3.js 之前載入 -->
+<script src="js/scheduleUtils.js"></script>
+<script src="js/dataFetch.js"></script>
+<script src="js/scheduler.js"></script>
+<script src="js/exportExcel.js"></script>
+<script src="js/candidates.js"></script>
+<script src="js/googleSheets.js"></script>
+
+<script src="js/page1.js"></script>
+<script src="js/page2.js"></script>
+<script src="js/page3.js"></script>
+<!-- js/scheduler.worker.js 不用寫在這裡，是 scheduler.js 的 runInWorker() 用
+     new Worker('js/scheduler.worker.js') 動態建立的 -->
+
+<script>
+/* ── 使用說明 ── */
+const HELP_SECTIONS = [
+  {
+    id: 'start', label: '🚀 啟動',
+    html: `
+      <h4>這是一個純前端網頁</h4>
+      <p>不需要安裝 Python、不需要啟動任何伺服器，直接開啟這個網址（或部署到 GitHub Pages 後的網址）就能用。所有排課運算都在你的瀏覽器裡完成，不會送到任何第三方伺服器。</p>
+      <img class="help-img" src="assets/img/app-workflow.svg" alt="三步驟操作流程：匯入資料、老師設定、排班結果">
+      <h4>第一次使用前的設定</h4>
+      <ol>
+        <li>把「師資調查表」「需求表」這兩份 Google Sheet 的分享設定改成「知道連結的使用者皆可檢視」</li>
+        <li>準備一組啟用了 Google Sheets API 的 Google API Key</li>
+        <li>點右上角「⚙️ 設定」，填入 API Key、兩份表的網址（或 ID）、分頁名稱，按「儲存」</li>
+      </ol>
+      <p>詳細步驟請看下一個分頁「🔑 Google Sheet 設定」。</p>
+      <p class="help-warn">⚠ 設定存在這個瀏覽器裡（不會上傳到任何地方），換一台電腦或清除瀏覽器資料要重新填一次。</p>
+      <p class="help-note">💡 專案的完整技術文件（部署到 GitHub Pages、資料表格式需求等）請見 repository 裡的 <code>README.md</code>。</p>
+    `
+  },
+  {
+    id: 'gsheet', label: '🔑 Google Sheet 設定',
+    html: `
+      <h4>整體流程</h4>
+      <img class="help-img" src="assets/img/setup-flow.svg" alt="Google Sheets API 設定四步驟：建立專案、啟用 API、建立金鑰、限制金鑰">
+      <h4>Step 1：建立 Google Cloud 專案</h4>
+      <ol>
+        <li>前往 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a></li>
+        <li>右上角專案選單 →「新增專案」，輸入名稱後建立</li>
+      </ol>
+      <h4>Step 2：啟用 Google Sheets API</h4>
+      <ol>
+        <li>左側選單「API 和服務」→「程式庫」</li>
+        <li>搜尋 <code>Google Sheets API</code> → 點進去 → 按「啟用」</li>
+      </ol>
+      <h4>Step 3：建立 API 金鑰</h4>
+      <ol>
+        <li>「API 和服務」→「憑證」→「建立憑證」→「API 金鑰」</li>
+        <li>複製產生的金鑰字串，稍後貼到本系統的「⚙️ 設定」</li>
+      </ol>
+      <h4>Step 4：限制金鑰使用範圍（強烈建議）</h4>
+      <p>這組 Key 會出現在瀏覽器的網路請求中，任何人打開開發者工具都看得到，<strong>務必限制用途</strong>：</p>
+      <ol>
+        <li>編輯剛建立的金鑰 →「應用程式限制」選 HTTP 轉介網址，填入你的網站網址（例如 <code>https://你的帳號.github.io/*</code>）</li>
+        <li>「API 限制」選「限制金鑰」，只勾選 Google Sheets API</li>
+      </ol>
+      <h4>Step 5：設定 Google Sheet 共用權限</h4>
+      <p>師資調查表、需求表<strong>都要各自</strong>設成「知道連結的使用者皆可檢視」，API 才讀得到內容：</p>
+      <img class="help-img" src="assets/img/sheet-share.svg" alt="Google Sheet 共用設定：一般access 改成知道連結的使用者、角色選檢視者">
+      <ol>
+        <li>打開 Google Sheet → 右上角「共用」</li>
+        <li>「一般access」改成「知道連結的使用者」，角色選「檢視者」即可（不需要編輯權限）</li>
+      </ol>
+      <h4>Step 6：在系統內填入設定</h4>
+      <img class="help-img" src="assets/img/settings-fields.svg" alt="系統內設定欄位：API Key、師資表網址與分頁名稱、需求表網址與分頁名稱">
+      <p>右上角「⚙️ 設定」填入 API Key、兩份表的網址（或 ID）與分頁名稱後按「儲存」即可。</p>
+    `
+  },
+  {
+    id: 'p1', label: '📋 頁面一',
+    html: `
+      <h4>匯入資料</h4>
+      <table class="help-tbl">
+        <tr><th>模式</th><th>資料來源</th></tr>
+        <tr><td>全新排班</td><td>師資表 + 需求表都直接從 Google Sheet 即時抓取，不用上傳檔案</td></tr>
+        <tr><td>繼續調整</td><td>師資表一樣從 Google Sheet 抓；只需要上傳上次匯出的「排課結果.xlsx」</td></tr>
+      </table>
+      <p>如果「抓取資料」按鈕是灰的，代表「⚙️ 設定」裡的 Google Sheet 資訊還沒填齊。</p>
+    `
+  },
+  {
+    id: 'p2', label: '👩‍🏫 頁面二',
+    html: `
+      <h4>老師設定</h4>
+      <p>可針對個別老師做以下設定：</p>
+      <ul>
+        <li><strong>角色鎖定</strong>：同時有講師＋助教資格者，可鎖定整個營期只擔任其中一種</li>
+        <li><strong>助教保護週數</strong>：新進人員前 N 週只排助教，保護期結束後才排講師</li>
+      </ul>
+      <p>搜尋框可即時篩選老師姓名。設定完成後按「執行排班 →」。</p>
+    `
+  },
+  {
+    id: 'p3', label: '📊 頁面三',
+    html: `
+      <h4>排班結果操作</h4>
+      <ul>
+        <li><strong>換人</strong>：點格子 → 右側面板出現候選人 → 點候選人名字</li>
+        <li><strong>清空</strong>：右側面板按「清空」</li>
+        <li><strong>強制指派</strong>：候選人清單下方展開，可指定任何人（含不符條件者）</li>
+        <li><strong>補排缺額</strong>：已排的格子不動，只自動填補空格</li>
+        <li><strong>全部重新排班</strong>：清掉所有排課重跑演算法</li>
+      </ul>
+      <h4>格子說明</h4>
+      <table class="help-tbl">
+        <tr><th>樣式</th><th>意義</th></tr>
+        <tr><td>橘色左邊框</td><td>小班（≤ 3 人），需手動排課</td></tr>
+        <tr><td>⚠ 符號</td><td>排課未達應配置人數</td></tr>
+        <tr><td>黃色高亮</td><td>目前選取的格子</td></tr>
+        <tr><td>紫色高亮</td><td>hover 候選人時該人出現的其他格子</td></tr>
+      </table>
+    `
+  },
+  {
+    id: 'rules', label: '📏 排班規則',
+    html: `
+      <h4>人數配置規則</h4>
+      <table class="help-tbl">
+        <tr><th>預計人數</th><th>應配置</th></tr>
+        <tr><td>≤ 3 人（小班）</td><td>不自動排，需手動指派</td></tr>
+        <tr><td>4 ~ 8 人</td><td>講師 × 1</td></tr>
+        <tr><td>9 ~ 17 人</td><td>講師 × 1、助教 × 1</td></tr>
+        <tr><td>≥ 18 人</td><td>講師 × 1、助教 × 2</td></tr>
+      </table>
+      <h4>候選人資格</h4>
+      <p>老師必須同時符合：有意願夏令營、具備對應角色、可教該課程、可授課時段含該週、可授課校區含該校區、同週尚未排其他課。</p>
+      <h4>排班優先順序</h4>
+      <ol>
+        <li>Priority 數值較高</li>
+        <li>可授課時段較少（減少浪費）</li>
+        <li>已排課次數較少（均衡分配）</li>
+      </ol>
+    `
+  },
+  {
+    id: 'export', label: '⬇ 匯出',
+    html: `
+      <h4>匯出 Excel</h4>
+      <p>排班調整完成後，點右上角「⬇ 匯出 Excel」下載結果檔。</p>
+      <p>匯出的 Excel 包含五個工作表：</p>
+      <table class="help-tbl">
+        <tr><th>工作表</th><th>內容</th></tr>
+        <tr><td>2026 夏令營</td><td>排班主表（已填入姓名）</td></tr>
+        <tr><td>老師課表</td><td>依老師列出所有排課明細</td></tr>
+        <tr><td>未排清單</td><td>仍有缺口的格子清單</td></tr>
+        <tr><td>暫不排課清單</td><td>小班（≤ 3 人）清單</td></tr>
+        <tr><td>鎖定警告</td><td>鎖定老師有衝突時的警告</td></tr>
+      </table>
+      <p class="help-note">💡 「繼續調整」時，將這份匯出的 Excel 上傳到頁面一的「繼續調整 tab」，即可還原上次排班繼續編輯。</p>
+    `
+  },
+  {
+    id: 'faq', label: '🙋 常見問題',
+    html: `
+      <dl class="help-faq">
+        <dt>「從 Google Sheet 抓取資料」按下去出現 403 錯誤？</dt>
+        <dd>確認該份 Google Sheet 的分享設定是「知道連結的使用者皆可檢視」，以及 API Key 是否正確、有沒有被限制成只能從別的網域呼叫。</dd>
+        <dt>出現「找不到工作表」或 400 錯誤？</dt>
+        <dd>確認「⚙️ 設定」裡填的分頁名稱跟 Google Sheet 裡的分頁名稱完全一樣（含空白、大小寫）。</dd>
+        <dt>排班按下去一直轉圈圈？</dt>
+        <dd>正常現象，課程數量多時演算法需要幾秒鐘，請耐心等待，不要重複點擊。</dd>
+        <dt>老師明明可以教但沒出現在候選人？</dt>
+        <dd>確認師資 Excel 中該老師的可授課時段、可授課校區、可教授課程、夏令營意願欄位是否填寫正確。</dd>
+        <dt>匯出的 Excel 打不開？</dt>
+        <dd>可能是同名檔案仍在開啟中，請關閉後再匯出。</dd>
+      </dl>
+    `
+  }
+];
+
+function openHelp() {
+  const modal = document.getElementById('help-modal');
+  const nav   = document.getElementById('help-nav');
+  const body  = document.getElementById('help-body');
+  // 第一次開啟時建立 nav
+  if (!nav.dataset.built) {
+    nav.dataset.built = '1';
+    HELP_SECTIONS.forEach((sec, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'help-nav-btn' + (i === 0 ? ' active' : '');
+      btn.textContent = sec.label;
+      btn.onclick = () => switchHelp(sec.id);
+      nav.appendChild(btn);
+    });
+    switchHelp(HELP_SECTIONS[0].id);
+  }
+  modal.classList.add('open');
+}
+
+function closeHelp() {
+  document.getElementById('help-modal').classList.remove('open');
+}
+
+function switchHelp(id) {
+  const sec = HELP_SECTIONS.find(s => s.id === id);
+  if (!sec) return;
+  document.getElementById('help-body').innerHTML = sec.html;
+  document.querySelectorAll('.help-nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === sec.label);
+  });
+}
+
+// 點遮罩關閉
+document.getElementById('help-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeHelp();
+});
+</script>
+
+</body>

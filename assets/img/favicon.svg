@@ -1,0 +1,12 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- 徽章底 -->
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#FBF6EC" stroke="#2A2013" stroke-width="4"/>
+  <!-- 行事曆吊環 -->
+  <rect x="21" y="10" width="5" height="10" rx="2.5" fill="#2A2013"/>
+  <rect x="38" y="10" width="5" height="10" rx="2.5" fill="#2A2013"/>
+  <!-- 行事曆本體 -->
+  <rect x="14" y="18" width="36" height="32" rx="6" fill="#fff" stroke="#2A2013" stroke-width="3.5"/>
+  <line x1="14" y1="27" x2="50" y2="27" stroke="#2A2013" stroke-width="3.5"/>
+  <!-- 打勾 -->
+  <path d="M21 36.5 L28 43.5 L44 25.5" fill="none" stroke="#D4700A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,3)"/>
+</svg>
