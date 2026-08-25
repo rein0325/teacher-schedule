@@ -113,7 +113,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
    Header
    ════════════════════════════════════════ */
 header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:var(--bg2);border-bottom:3px solid var(--ink);flex-shrink:0}
-.logo{font-size:15px;font-weight:900;letter-spacing:.02em}.logo span{color:var(--accent)}
+.logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:900;letter-spacing:.02em;white-space:nowrap}
+.logo img{height:32px;width:auto;display:block;flex-shrink:0}
+.logo span{color:var(--accent)}
 .steps{display:flex;gap:6px}
 .step{display:flex;align-items:center;gap:8px;padding:0 14px;height:36px;font-size:13px;font-weight:700;color:var(--text3);position:relative;cursor:default;border-radius:var(--r);border:2px solid transparent}
 .step.active{color:var(--text);background:var(--bg3);border-color:var(--ink)}
