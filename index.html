@@ -17,15 +17,6 @@
   <!-- ── Header ── -->
   <header>
     <div style="display:flex;align-items:center;gap:10px">
-      <div id="theme-btn">
-        <button class="btn btn-g btn-sm" onclick="toggleThemeMenu(event)" title="切換主題">🎨</button>
-        <div id="theme-menu">
-          <div class="tm-opt on" id="topt-dark"    onclick="setTheme('dark')">   <span class="tm-dot" style="background:#4f8ef7"></span>暗黑（預設）</div>
-          <div class="tm-opt"    id="topt-morning"  onclick="setTheme('morning')"> <span class="tm-dot" style="background:#B85C38"></span>清晨米白</div>
-          <div class="tm-opt"    id="topt-lavender" onclick="setTheme('lavender')"><span class="tm-dot" style="background:#7F77DD"></span>薰衣草</div>
-          <div class="tm-opt"    id="topt-summer"   onclick="setTheme('summer')">  <span class="tm-dot" style="background:#E07800"></span>夏日陽光</div>
-        </div>
-      </div>
       <div class="logo"><img src="assets/img/logo-mark.png" alt="艾思教育">艾思程式<span>講師營隊排課系統</span></div>
     </div>
 
@@ -199,22 +190,28 @@
   </div>
 </div>
 
-<!-- ⚙️ 設定：Google API Key + 師資表/需求表網址與分頁名稱 -->
+<!-- ⚙️ 設定：Google API Key + 師資表/需求表網址與分頁名稱 + 更多設定（主題） -->
 <style>
   #settings-modal { display:none; position:fixed; inset:0; background:var(--overlay); align-items:center; justify-content:center; z-index:9999; }
   #settings-modal.open { display:flex; }
   #settings-modal .cfg-field { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--text2); margin-bottom:12px; }
   #settings-modal .cfg-field input { padding:7px 10px; font-size:13px; border:2px solid var(--border2); border-radius:var(--r); background:var(--bg3); color:inherit; }
   #settings-modal .cfg-field input:focus { border-color:var(--accent); outline:none; }
+  #settings-modal .settings-tabs { display:flex; gap:6px; margin-bottom:16px; }
 </style>
 <div id="settings-modal">
   <div class="cmc" style="max-width:440px;width:90%">
-    <h3>⚙️ Google Sheet 設定</h3>
-    <p style="font-size:12px;color:var(--text2);margin-top:4px">
-      兩份 Google Sheet 都要設成「知道連結的使用者皆可檢視」，API Key 建議在
-      Google Cloud Console 限制成只能用在 Sheets API。設定會存在這個瀏覽器裡，換一台電腦要重填。
-    </p>
-    <div style="margin-top:14px">
+    <h3>⚙️ 設定</h3>
+    <div class="settings-tabs">
+      <button class="help-nav-btn active" id="stab-sheet" onclick="switchSettingsTab('sheet')">🔗 Google Sheet</button>
+      <button class="help-nav-btn" id="stab-more" onclick="switchSettingsTab('more')">🎨 更多設定</button>
+    </div>
+
+    <div id="settings-pane-sheet">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">
+        兩份 Google Sheet 都要設成「知道連結的使用者皆可檢視」，API Key 建議在
+        Google Cloud Console 限制成只能用在 Sheets API。設定會存在這個瀏覽器裡，換一台電腦要重填。
+      </p>
       <label class="cfg-field">Google API Key
         <input id="cfg-api-key" type="text" placeholder="AIza...">
       </label>
@@ -231,6 +228,14 @@
         <input id="cfg-schedule-sheet" type="text" placeholder="2026 夏令營">
       </label>
     </div>
+
+    <div id="settings-pane-more" style="display:none">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">選擇整體介面的顏色主題，點選後立即套用並自動儲存。</p>
+      <div class="tm-opt on" id="topt-dark"    onclick="setTheme('dark')">   <span class="tm-dot" style="background:#4f8ef7"></span>暗黑</div>
+      <div class="tm-opt"    id="topt-morning" onclick="setTheme('morning')"><span class="tm-dot" style="background:#B85C38"></span>清晨米白（預設）</div>
+      <div class="tm-opt"    id="topt-lavender" onclick="setTheme('lavender')"><span class="tm-dot" style="background:#7F77DD"></span>薰衣草</div>
+    </div>
+
     <div class="cmbts">
       <button class="btn btn-g" onclick="closeSettings()">取消</button>
       <button class="btn btn-p" onclick="saveSettings()">儲存</button>
@@ -313,6 +318,8 @@ const HELP_SECTIONS = [
         <li>點右上角「⚙️ 設定」，填入 API Key、兩份表的網址（或 ID）、分頁名稱，按「儲存」</li>
       </ol>
       <p>詳細步驟請看下一個分頁「🔑 Google Sheet 設定」。</p>
+      <h4>更多設定：切換主題</h4>
+      <p>點右上角「⚙️ 設定」，切到裡面的「🎨 更多設定」分頁，可以選擇暗黑、清晨米白（預設）、薰衣草三種介面主題，點選後立即套用並自動記住，不用另外按儲存。</p>
       <p class="help-warn">⚠ 設定存在這個瀏覽器裡（不會上傳到任何地方），換一台電腦或清除瀏覽器資料要重新填一次。</p>
       <p class="help-note">💡 師資表／需求表需要符合的欄位格式，請見 repository 裡的 <code>README.md</code>。</p>
     `
@@ -484,7 +491,7 @@ function switchHelp(id) {
   const sec = HELP_SECTIONS.find(s => s.id === id);
   if (!sec) return;
   document.getElementById('help-body').innerHTML = sec.html;
-  document.querySelectorAll('.help-nav-btn').forEach(btn => {
+  document.querySelectorAll('#help-nav .help-nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent === sec.label);
   });
 }

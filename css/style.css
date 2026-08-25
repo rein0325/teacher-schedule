@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════
-   CSS 變數 — 四個主題
+   CSS 變數 — 三個主題
    「溫暖手作」視覺語言：厚邊框（--ink）＋ 硬陰影（--shadow-c 位移色）
    淺色主題用深墨色當邊框／陰影；暗黑主題邊框改用淺色線條、陰影改用主色（避免黑上疊黑看不見）
    ════════════════════════════════════════ */
@@ -43,20 +43,6 @@
   --hover-ci:rgba(127,119,221,.08);--sel-cs:rgba(127,119,221,.1);
   --ink:#1E1A40;--shadow-c:#1E1A40;
 }
-[data-theme="summer"]{
-  --bg:#FFFBF0;--bg2:#FFFFFF;--bg3:#FFF3D6;
-  --border:#EEE0B0;--border2:#DDC870;
-  --text:#2A1800;--text2:#7A5820;--text3:#BBA060;
-  --accent:#E07800;--accent2:#C06000;
-  --green:#3A7020;--orange:#C85000;--red:#B02020;--yellow:#906000;
-  --ins:#1850A0;--ast:#6840A0;--sm:#C85000;
-  --sh:0 4px 24px rgba(180,120,0,.12);
-  --overlay:rgba(42,24,0,.45);
-  --hover-cell:rgba(224,120,0,.08);--sel-cell:rgba(224,120,0,.15);
-  --hover-ci:rgba(224,120,0,.07);--sel-cs:rgba(224,120,0,.1);
-  --ink:#2A1800;--shadow-c:#2A1800;
-}
-
 /* ════════════════════════════════════════
    校區顏色（四主題）
    ════════════════════════════════════════ */
@@ -92,15 +78,6 @@
 [data-theme="lavender"] .col-c2{background:rgba(96,24,136,.05)}
 [data-theme="lavender"] .col-c3{background:rgba(112,64,0,.05)}
 
-/* 夏日陽光 */
-[data-theme="summer"] .ch-c0{background:#CCE0F8!important;color:#0C3870!important}
-[data-theme="summer"] .ch-c1{background:#C8ECD4!important;color:#104820!important}
-[data-theme="summer"] .ch-c2{background:#DCC8F0!important;color:#580878!important}
-[data-theme="summer"] .ch-c3{background:#FFE8A0!important;color:#603800!important}
-[data-theme="summer"] .col-c0{background:rgba(12,56,112,.05)}
-[data-theme="summer"] .col-c1{background:rgba(16,72,32,.05)}
-[data-theme="summer"] .col-c2{background:rgba(88,8,120,.05)}
-[data-theme="summer"] .col-c3{background:rgba(96,56,0,.05)}
 
 /* ════════════════════════════════════════
    Base
@@ -252,12 +229,9 @@ input:focus,select:focus{border-color:var(--accent)}
 /* ════════════════════════════════════════
    主題選單
    ════════════════════════════════════════ */
-#theme-btn{position:relative}
-#theme-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--bg2);border:2px solid var(--ink);border-radius:var(--r);padding:4px;z-index:9000;min-width:148px;box-shadow:4px 4px 0 var(--shadow-c)}
-#theme-menu.open{display:block}
-.tm-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap}
+.tm-opt{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;margin-bottom:6px;border:2px solid var(--border)}
 .tm-opt:hover{background:var(--bg3);color:var(--text)}
-.tm-opt.on{color:var(--accent);font-weight:800;background:var(--bg3)}
+.tm-opt.on{color:var(--accent);font-weight:800;background:var(--bg3);border-color:var(--ink)}
 .tm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--ink)}
 
 /* ════════════════════════════════════════

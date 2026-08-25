@@ -171,7 +171,15 @@ function openSettings() {
   document.getElementById('cfg-staff-sheet').value = cfg.staffSheetName || '';
   document.getElementById('cfg-schedule-id').value = cfg.scheduleSheetId || '';
   document.getElementById('cfg-schedule-sheet').value = cfg.scheduleSheetName || '';
+  switchSettingsTab('sheet');
   document.getElementById('settings-modal').classList.add('open');
+}
+
+function switchSettingsTab(tab) {
+  document.getElementById('settings-pane-sheet').style.display = tab === 'sheet' ? '' : 'none';
+  document.getElementById('settings-pane-more').style.display = tab === 'more' ? '' : 'none';
+  document.getElementById('stab-sheet').classList.toggle('active', tab === 'sheet');
+  document.getElementById('stab-more').classList.toggle('active', tab === 'more');
 }
 
 function closeSettings() {
